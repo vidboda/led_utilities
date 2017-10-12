@@ -9,5 +9,5 @@ Utilities to populate LED database
 
 ### Run ###
 
-* put vcf files and corresponding text files (see import_batch_led.sh -h for format details
-* run mport_batch_led.sh
+* put vcf files and corresponding text files (see import_batch_led.sh -h for format details)
+* run import_batch_led.sh
