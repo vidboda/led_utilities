@@ -23,5 +23,5 @@ bash splitVCF4LED.sh -i /RS_IURC/data/MobiDL/captainAchab/Example/ND/LED/LED-19-
 * to generate a sample file with custom info
 
 ```bash
-bash splitVCF4LED.sh -i /RS_IURC/data/MobiDL/captainAchab/Example/ND/LED/LED-19-10-2018/ATX1289.final.vcf -af -f S1376 -e medehome -t SENSORINEURAL
+bash splitVCF4LED.sh -i /RS_IURC/data/MobiDL/captainAchab/Example/ND/LED/LED-19-10-2018/ATX1289.final.vcf -af -f S1376 -e medexome -t SENSORINEURAL
 ```
