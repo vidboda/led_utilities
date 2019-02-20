@@ -13,10 +13,10 @@ my $dbh = DBI->connect(    "DBI:Pg:database=lgm_ex;host=localhost;",
                 ) or die $DBI::errstr;
 
 
-my $query = "SELECT a.chr, a.pos_hg19, a.reference, a.alternative, COUNT(DISTINCT(b.patient_id)) as num, b.status_type, a.id FROM variant a, variant2patient b WHERE a.id = b.variant_id AND b.status_type = 'heterozygous' GROUP BY b.status_type, a.chr, a.pos_hg19, a.reference, a.alternative , a.id ORDER BY a.chr, a.pos_hg19;";
+my $query = "SELECT a.chr, a.pos_hg19, a.reference, a.alternative, COUNT(DISTINCT(b.patient_id)) as num, b.status_type, a.id FROM variant a, variant2patient b WHERE a.id = b.variant_id GROUP BY b.status_type, a.chr, a.pos_hg19, a.reference, a.alternative , a.id ORDER BY a.chr, a.pos_hg19;";
 
 my $hash;
-my $content = '#CHROM POS     ID        REF    ALT     QUAL FILTER INFO';
+my $content = "#CHROM POS     ID        REF    ALT     QUAL FILTER INFO\n";
 
 my $sth = $dbh->prepare($query);
 my $res = $sth->execute();
@@ -27,8 +27,10 @@ while (my $result = $sth->fetchrow_hashref()) {
 
 foreach my $key (keys(%{$hash})) {
 	my ($chr, $pos, $ref, $alt, $id) = split(/_/, $key);
-	print "$chr, $pos, $ref, $alt, $id\n";
-	$content .= "$chr	$pos	.	$ref	$alt	.	.	HET:$hash->{$key}->{'heterozygous'};HOM$hash->{$key}->{'homozygous'};LED_URL=https://194.167.35.158/perl/led/variant.pl?var=$id\n";
+	if (! $hash->{$key}->{'heterozygous'}) {$hash->{$key}->{'heterozygous'} = 0}
+	if (! $hash->{$key}->{'homozygous'}) {$hash->{$key}->{'homozygous'} = 0}
+	#print "$chr, $pos, $ref, $alt, $id, $hash->{$key}->{'heterozygous'}, $hash->{$key}\n";
+	$content .= "$chr	$pos	.	$ref	$alt	.	.	HET:$hash->{$key}->{'heterozygous'};HOM:$hash->{$key}->{'homozygous'};LED_URL=https://194.167.35.158/perl/led/variant.pl?var=$id\n";
 }
 
 open F, '>LED4ACHAB.vcf';
