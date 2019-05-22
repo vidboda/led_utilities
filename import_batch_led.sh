@@ -97,6 +97,14 @@ if [[ "${DIR}" =~ .+[^\/]$ ]];then
 	DIR="${DIR}/"
 fi
 
+######## check mandatory arguments
+if [ ! "${DIR}" or ! "${LOGIN}" or ! "${PASSWORD}" ];then
+	echo "${USAGE}"
+	echo "Error Message : Missing argument"
+	echo ""
+	exit 1
+fi
+
 #get file list from $DIR
 FILES=$(ls -l ${DIR} | grep -v '^d' | awk '{print $9}' | grep -e '.txt$')
 
