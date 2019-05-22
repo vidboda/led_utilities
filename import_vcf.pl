@@ -37,8 +37,8 @@ if ($opts{'c'}) {
 
 
 my $dbh = DBI->connect(    "DBI:Pg:database=lgm_ex;host=localhost;",
-                        'lgm',
-                        'genetique1',
+                        '',
+                        '',
                         {'RaiseError' => 1}
                 ) or die $DBI::errstr;
 
