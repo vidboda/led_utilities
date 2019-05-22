@@ -16,6 +16,8 @@ Arguments:
 
     -d,     --directory path to the directory containing the vcf and txt files
     -p,     --prefix    prefix to use to name vcf files see example below
+    -l,	    --login	database login
+    -pa,    --password	database password
 
 Example text file:
 
@@ -70,6 +72,14 @@ case "${KEY}" in
     PREFIX="$2"
     shift
     ;;
+    -l|--login)
+    LOGIN="$2"
+    shift
+    ;;
+    -pa|--password)
+    PASSWORD="$2"
+    shift
+    ;;
     -h|--help)
     echo "${USAGE}"
     exit 1
@@ -102,7 +112,7 @@ do
             if [ "$?" -eq 0 ];then
                 ${DOS2UNIX} ${DIR}${VCF}
                 if [ "$?" -eq 0 ];then
-                    ./"${IMPORT_SCRIPT}" -p "${DIR}${FILE}" -i "${DIR}${VCF}" -c
+                    ./"${IMPORT_SCRIPT}" -p "${DIR}${FILE}" -i "${DIR}${VCF}" -l "${LOGIN}" -pa "${PASSWORD}" -c
                     if [ "$?" -eq 0 ];then
                         echo "${BASH_REMATCH[1]} done"
                     else
