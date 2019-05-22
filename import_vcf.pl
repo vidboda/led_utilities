@@ -13,15 +13,15 @@ $Getopt::Std::STANDARD_HELP_VERSION = 1;
 ##########################################################################################################
 
 
-my (%opts, $pat_file, $vcf);
-getopts('i:p:c', \%opts);
+my (%opts, $pat_file, $vcf, $login, $passwd);
+getopts('i:s:c:l:p', \%opts);
 
-if ((not exists $opts{'i'}) || ($opts{'i'} !~ /\.vcf/o) || (not exists $opts{'p'}) || ($opts{'p'} !~ /\.txt/o)) {
+if ((not exists $opts{'i'}) || ($opts{'i'} !~ /\.vcf/o) || (not exists $opts{'s'}) || ($opts{'s'} !~ /\.txt/o || (not exists $opts{'l'}) || (not exists $opts{'p'}))) {
 	&HELP_MESSAGE();
 	exit
 }
 if ($opts{'i'} =~ /(.+\.vcf)$/o) {$vcf = $1} 
-if ($opts{'p'} =~ /(.+\.txt)$/o) {$pat_file = $1}
+if ($opts{'s'} =~ /(.+\.txt)$/o) {$pat_file = $1}
 if ($opts{'c'}) {
 	open(F, $vcf) or die $!;
 	my ($i, $warning) = (0, 'f');
@@ -34,11 +34,13 @@ if ($opts{'c'}) {
 	}
 	if ($warning eq 't') {exit}
 }
+if ($opts{'l'} =~ /^(.+)$/o) {$login = $1} 
+if ($opts{'s'} =~ /^(.+)$/o) {$passwd = $1}
 
 
 my $dbh = DBI->connect(    "DBI:Pg:database=lgm_ex;host=localhost;",
-                        '',
-                        '',
+                        $login,
+                        $passwd,
                         {'RaiseError' => 1}
                 ) or die $DBI::errstr;
 
@@ -133,8 +135,10 @@ sub HELP_MESSAGE {
 	print "\nUsage: ./import_vcf.pl -i path/to/vcf/file.vcf -p path/to/patient/file.txt \nSupports --help or --version\n\n
 ### This script imports vcf files into lgm_ex
 ### -i vcf file from MSR, NENUFAAR ANNOVAR or NENUFAAR alone
-### -p patient file
+### -s sample file
 ### -c check mode: checks vcf for unwanted \n (all lines must begin with # or c) prior to insertion. Abort if finds sthg
+### -l database login
+### -p database passwd
 ### contact: david.baux\@inserm.fr\n\n"
 }
 
