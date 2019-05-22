@@ -2,6 +2,8 @@
 
 Utilities to populate LED database
 
+**This repository is highly specific to the lab**
+
 ### Set up ###
 
 * Clone the repos
