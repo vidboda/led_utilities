@@ -1,0 +1,14 @@
+#patient_id     less than 10 chars
+#family_id      less than 10 chars
+#gender         m/f
+#disease_name   RP,DFNB,DFNA,USH,ATAXIA,MYOPATHY
+#team_name      SENSORINEURAL,NEUROMUSCULAR,ATAXIA
+#visibility     0/1
+#experiment     trusight_one,exome_ss_v6
+patient_id:A1656
+family_id:ATX1249
+gender:f
+disease_name:ATAXIA
+team_name:ATAXIA
+visibility:1
+experiment_type:trusight_one
