@@ -127,7 +127,7 @@ fi
 
 if [ -f "${VCF}" ];then
 	VCFNAME=$(basename -- "${VCF}")
-	DIRNAME=$(dirname "${VAR}")
+	DIRNAME=$(dirname "${VCF}")
 	FILEEXT="${VCFNAME##*.}"
 	FILENAME="${VCFNAME%.*}"
 	if [ "${FILEEXT}" == "vcf" ];then
