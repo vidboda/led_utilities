@@ -138,10 +138,10 @@ if [ -f "${VCF}" ];then
 		#SAMPLES=$(${BCFTOOLS} query -l ${VCF} | cut -f 1- | awk '{print}')
 		mkdir "${DIRNAME}/${FILENAME}"
 		for SAMPLE in `"${BCFTOOLS}" query -l "${VCF}"`; do
-			if [[ "${SAMPLE}" =~ '^(.+)${SUFFIX}$' ]];then
-				SAMPLE_SIMPLE = "${BASH_REMATCH[0]}"
+			if [[ "${SAMPLE}" =~ '^(.+)${SUFFIX}' ]];then
+				SAMPLE_SIMPLE="${BASH_REMATCH[0]}"
 			else
-				SAMPLE_SIMPLE = "${SAMPLE}"
+				SAMPLE_SIMPLE="${SAMPLE}"
 			fi
 			treat_samples "${FILENAME}" "${VCF}" "${BCFTOOLS}" "${SAMPLE_SIMPLE}"
 			((SAMPLE_COUNT++))
