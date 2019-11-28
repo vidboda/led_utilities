@@ -23,11 +23,11 @@
 
 VERSION=1.0
 USAGE="
-Program: 576totreat
+Program: splitVCF4LED
 Version: ${VERSION}
 Contact: Baux David <david.baux@inserm.fr>
 
-Usage: bash splitVCF4LED.sh -i input.vcf [ -f <family_ID> -e <expriment_name> -t <team> -d <disease> -g <M|F|X> -b /path/to/bcftools ]
+Usage: bash splitVCF4LED.sh -i input.vcf [ -f <family_ID> -e <expriment_name> -t <team> -d <disease> -b /path/to/bcftools ]
 default bcftools: /usr/local/bin/bcftools
 "
 
@@ -63,10 +63,6 @@ case "${KEY}" in
 	;;
 	-d|--disease)
 	DISEASE="$2"
-	shift
-	;;
-	-g|--gender)
-	GENDER="$2"
 	shift
 	;;
 	-h|--help)
@@ -105,7 +101,7 @@ log() {
 
 
 treat_samples() {
-	# "${FILENAME}" "${VCF}" "${BCFTOOLS}" "${SAMPLE}" "${FAMILY}" "${EXPERIMENT}" "${TEAM}" "${DISEASE}" "${GENDER}"
+	# "${FILENAME}" "${VCF}" "${BCFTOOLS}" "${SAMPLE}" "${FAMILY}" "${EXPERIMENT}" "${TEAM}" "${DISEASE}"
 	info "creating splitted VCF: $1/$4.vcf"
 	mkdir "$1"
 	#"${BCFTOOLS}" view -c1 -Ov -s$( IFS=$',';echo "${SAMPLES[*]}") -o "splitted_vcf/${FILENAME}.${SAMPLE_COUNT}.vcf" "${VCF}" 
@@ -116,7 +112,6 @@ treat_samples() {
 		sed -i.bak -e "s/\(  \"captainAchab.sampleID\": \"\).*/\1$1_$2\",/" \
 			-e "s/patient_id:.+/patiend_id:$4/" \
 			-e "s/family_id:.+/family_id:$5/" \
-			-e "s/gender:.+/gender:$9/" \
 			-e "s/disease_name:.+/disease_name:$8/" \
 			-e "s/team_name:.+/team_name:$7/" \
 			-e "s/experiment_type:.+/experiment_type:$6/" "$1/$4.txt"
@@ -139,7 +134,7 @@ if [ -f "${VCF}" ];then
 		info "${VCF} will be treated"
 		#SAMPLES=$(${BCFTOOLS} query -l ${VCF} | cut -f 1- | awk '{print}')
 		for SAMPLE in `"${BCFTOOLS}" query -l "${VCF}"`; do
-			treat_samples "${FILENAME}" "${VCF}" "${BCFTOOLS}" "${SAMPLE}" "${DISEASE}" "${GENDER}"
+			treat_samples "${FILENAME}" "${VCF}" "${BCFTOOLS}" "${SAMPLE}" "${DISEASE}"
 		done
 		info "${SAMPLE_COUNT} samples processed"
 	else
