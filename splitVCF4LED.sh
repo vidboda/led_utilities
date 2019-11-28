@@ -102,19 +102,19 @@ log() {
 
 treat_samples() {
 	# "${FILENAME}" "${VCF}" "${BCFTOOLS}" "${SAMPLE}" "${FAMILY}" "${EXPERIMENT}" "${TEAM}" "${DISEASE}"
-	info "creating splitted VCF: $1/$4.vcf"
+	info "creating splitted VCF: $9/$1/$4.vcf"
 	#"${BCFTOOLS}" view -c1 -Ov -s$( IFS=$',';echo "${SAMPLES[*]}") -o "splitted_vcf/${FILENAME}.${SAMPLE_COUNT}.vcf" "${VCF}" 
 	#info "$6 view -c1 -Ov -s$( IFS=$',';echo $4) -o splitted_vcf/$1_$2/$3.$1_$2.vcf $5" 
-	"$3" view -c1 -Ov -s "$4" -o "$1/$4.vcf" "$2" 
+	"$3" view -c1 -Ov -s "$4" -o "$9/$1/$4.vcf" "$2" 
 	if [ "$5" -a "$6" -a "$7" -a "$8" ];then
-		cp "sample.txt" "$1/$4.txt"
+		cp "sample.txt" "$9/$1/$4.txt"
 		sed -i.bak -e "s/\(  \"captainAchab.sampleID\": \"\).*/\1$1_$2\",/" \
 			-e "s/patient_id:.+/patiend_id:$4/" \
 			-e "s/family_id:.+/family_id:$5/" \
 			-e "s/disease_name:.+/disease_name:$8/" \
 			-e "s/team_name:.+/team_name:$6/" \
-			-e "s/experiment_type:.+/experiment_type:$7/" "$1/$4.txt"
-		rm "$1/$4.txt.bak"
+			-e "s/experiment_type:.+/experiment_type:$7/" "$9/$1/$4.txt"
+		rm "$9/$1/$4.txt.bak"
 	fi
 }
 
