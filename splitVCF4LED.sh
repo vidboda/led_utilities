@@ -96,14 +96,13 @@ debug() { log "[${LIGHTRED}debug${NC}]" "$1" ; }
 echoerr() { echo -e "$@" 1>&2 ; }
 
 log() {
-	echoerr "[`date +'%Y-%m-%d %H:%M:%S'`] $1 - 576toTreat version : ${VERSION} - $2"
+	echoerr "[`date +'%Y-%m-%d %H:%M:%S'`] $1 - splitVCF4LED version : ${VERSION} - $2"
 }
 
 
 treat_samples() {
 	# "${FILENAME}" "${VCF}" "${BCFTOOLS}" "${SAMPLE}" "${FAMILY}" "${EXPERIMENT}" "${TEAM}" "${DISEASE}"
 	info "creating splitted VCF: $1/$4.vcf"
-	mkdir "$1"
 	#"${BCFTOOLS}" view -c1 -Ov -s$( IFS=$',';echo "${SAMPLES[*]}") -o "splitted_vcf/${FILENAME}.${SAMPLE_COUNT}.vcf" "${VCF}" 
 	#info "$6 view -c1 -Ov -s$( IFS=$',';echo $4) -o splitted_vcf/$1_$2/$3.$1_$2.vcf $5" 
 	"$3" view -c1 -Ov -s "$4" -o "$1/$4.vcf" "$2" 
@@ -113,8 +112,8 @@ treat_samples() {
 			-e "s/patient_id:.+/patiend_id:$4/" \
 			-e "s/family_id:.+/family_id:$5/" \
 			-e "s/disease_name:.+/disease_name:$8/" \
-			-e "s/team_name:.+/team_name:$7/" \
-			-e "s/experiment_type:.+/experiment_type:$6/" "$1/$4.txt"
+			-e "s/team_name:.+/team_name:$6/" \
+			-e "s/experiment_type:.+/experiment_type:$7/" "$1/$4.txt"
 		rm "$1/$4.txt.bak"
 	fi
 }
@@ -128,13 +127,16 @@ fi
 
 if [ -f "${VCF}" ];then
 	VCFNAME=$(basename -- "${VCF}")
+	DIRNAME=$(dirname "${VAR}")
 	FILEEXT="${VCFNAME##*.}"
 	FILENAME="${VCFNAME%.*}"
 	if [ "${FILEEXT}" == "vcf" ];then
 		info "${VCF} will be treated"
 		#SAMPLES=$(${BCFTOOLS} query -l ${VCF} | cut -f 1- | awk '{print}')
+		mkdir "${DIRNAME}/${FILENAME}"
 		for SAMPLE in `"${BCFTOOLS}" query -l "${VCF}"`; do
-			treat_samples "${FILENAME}" "${VCF}" "${BCFTOOLS}" "${SAMPLE}" "${DISEASE}"
+			treat_samples "${FILENAME}" "${VCF}" "${BCFTOOLS}" "${SAMPLE}" "${FAMILY}" "${EXPERIMENT}" "${TEAM}" "${DISEASE}" "${DIRNAME}"
+			((SAMPLE_COUNT++))
 		done
 		info "${SAMPLE_COUNT} samples processed"
 	else
