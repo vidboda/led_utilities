@@ -106,18 +106,18 @@ log() {
 
 treat_samples() {
 	# "${FILENAME}" "${VCF}" "${BCFTOOLS}" "${SAMPLE}" "${FAMILY}" "${EXPERIMENT}" "${TEAM}" "${DISEASE}"
-	info "creating splitted VCF: $9/$1/$4.vcf"
+	info "creating splitted VCF: $5/$1/$4.vcf"
 	#"${BCFTOOLS}" view -c1 -Ov -s$( IFS=$',';echo "${SAMPLES[*]}") -o "splitted_vcf/${FILENAME}.${SAMPLE_COUNT}.vcf" "${VCF}" 
 	#info "$6 view -c1 -Ov -s$( IFS=$',';echo $4) -o splitted_vcf/$1_$2/$3.$1_$2.vcf $5" 
-	"$3" view -c1 -Ov -s "$4" -o "$9/$1/$4.vcf" "$2" 
+	"$3" view -c1 -Ov -s "$4" -o "$5/$1/$4.vcf" "$2" 
 	if [ "$5" -a "$6" -a "$7" -a "$8" ];then
 		cp "sample.txt" "$9/$1/$4.txt"
 		sed -i.bak -e "s/patient_id:.+/patiend_id:${SAMPLE_SIMPLE}/" \
 			-e "s/family_id:.+/family_id:${FAMILY}/" \
 			-e "s/disease_name:.+/disease_name:${DISEASE}/" \
 			-e "s/team_name:.+/team_name:${TEAM}/" \
-			-e "s/experiment_type:.+/experiment_type:${EXPERIMENT}/" "$9/$1/$4.txt"
-		rm "$9/$1/$4.txt.bak"
+			-e "s/experiment_type:.+/experiment_type:${EXPERIMENT}/" "$5/$1/$4.txt"
+		rm "$5/$1/$4.txt.bak"
 	fi
 }
 
@@ -143,7 +143,7 @@ if [ -f "${VCF}" ];then
 			else
 				SAMPLE_SIMPLE="${SAMPLE}"
 			fi
-			treat_samples "${FILENAME}" "${VCF}" "${BCFTOOLS}" "${SAMPLE_SIMPLE}"
+			treat_samples "${FILENAME}" "${VCF}" "${BCFTOOLS}" "${SAMPLE_SIMPLE}" "{DIRNAME}"
 			((SAMPLE_COUNT++))
 		done
 		info "${SAMPLE_COUNT} samples processed"
