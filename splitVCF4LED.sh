@@ -109,14 +109,14 @@ treat_samples() {
 	info "creating splitted VCF: $5/$1/$4.vcf"
 	#"${BCFTOOLS}" view -c1 -Ov -s$( IFS=$',';echo "${SAMPLES[*]}") -o "splitted_vcf/${FILENAME}.${SAMPLE_COUNT}.vcf" "${VCF}" 
 	#info "$6 view -c1 -Ov -s$( IFS=$',';echo $4) -o splitted_vcf/$1_$2/$3.$1_$2.vcf $5" 
-	"$3" view -c1 -Ov -s "$4" -o "$5/$1/$4.vcf" "$2" 
-	if [ "$5" -a "$6" -a "$7" -a "$8" ];then
-		cp "sample.txt" "$9/$1/$4.txt"
-		sed -i.bak -e "s/patient_id:.+/patiend_id:${SAMPLE_SIMPLE}/" \
-			-e "s/family_id:.+/family_id:${FAMILY}/" \
-			-e "s/disease_name:.+/disease_name:${DISEASE}/" \
-			-e "s/team_name:.+/team_name:${TEAM}/" \
-			-e "s/experiment_type:.+/experiment_type:${EXPERIMENT}/" "$5/$1/$4.txt"
+	"$3" view -c1 -Ov -s "$6" -o "$5/$1/$4.vcf" "$2" 
+	if [ "${FAMILY}" -a "${DISEASE}" -a "${TEAM}" -a "${EXPERIMENT}" ];then
+		cp "sample.txt" "$5/$1/$4.txt"
+		sed -i.bak -e "8 s/\(patient_id:\).*/\1${SAMPLE_SIMPLE}/" \
+			-e "9 s/\(family_id:\).*/family_id:${FAMILY}/" \
+			-e "11 s/\(disease_name:\).*/disease_name:${DISEASE}/" \
+			-e "12 s/\(team_name:\).*/team_name:${TEAM}/" \
+			-e "14 s/\(experiment_type:\).*/experiment_type:${EXPERIMENT}/" "$5/$1/$4.txt"
 		rm "$5/$1/$4.txt.bak"
 	fi
 }
@@ -138,12 +138,12 @@ if [ -f "${VCF}" ];then
 		#SAMPLES=$(${BCFTOOLS} query -l ${VCF} | cut -f 1- | awk '{print}')
 		mkdir "${DIRNAME}/${FILENAME}"
 		for SAMPLE in `"${BCFTOOLS}" query -l "${VCF}"`; do
-			if [[ "${SAMPLE}" =~ '^(.+)${SUFFIX}' ]];then
-				SAMPLE_SIMPLE="${BASH_REMATCH[0]}"
+			if [[ "${SAMPLE}" =~ ^(.+)${SUFFIX} ]];then
+				SAMPLE_SIMPLE="${BASH_REMATCH[1]}"
 			else
 				SAMPLE_SIMPLE="${SAMPLE}"
 			fi
-			treat_samples "${FILENAME}" "${VCF}" "${BCFTOOLS}" "${SAMPLE_SIMPLE}" "{DIRNAME}"
+			treat_samples "${FILENAME}" "${VCF}" "${BCFTOOLS}" "${SAMPLE_SIMPLE}" "${DIRNAME}" "${SAMPLE}"
 			((SAMPLE_COUNT++))
 		done
 		info "${SAMPLE_COUNT} samples processed"
