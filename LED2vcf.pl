@@ -36,7 +36,7 @@ foreach my $key (sort keys(%{$hash})) {
 	if (! $hash->{$key}->{'homozygous'}) {$hash->{$key}->{'homozygous'} = 0}
 	#print "$chr, $pos, $ref, $alt, $id, $hash->{$key}->{'heterozygous'}, $hash->{$key}\n";
 	#$content .= "chr$chr\t$pos\t.\t$ref\t$alt\t.\t.\t\=\"HET=$hash->{$key}->{'heterozygous'};HOM=$hash->{$key}->{'homozygous'};LED_URL=\"&HYPERLINK(\"https://194.167.35.158/perl/led/variant.pl?var=$id\")\n";
-	$content .= "chr$chr\t$pos\t.\t$ref\t$alt\t.\t.\t\HET=$hash->{$key}->{'heterozygous'};HOM=$hash->{$key}->{'homozygous'};LED_URL=https://194.167.35.158/perl/led/variant.pl?var=$id\n";
+	$content .= "chr$chr\t$pos\t.\t$ref\t$alt\t.\t.\t\HET=$hash->{$key}->{'heterozygous'};HOM=$hash->{$key}->{'homozygous'};LED_URL=https://pp-gb-gen.iurc.montp.inserm.fr/perl/led/variant.pl?var=$id\n";
 }
 
 open F, '>LED4ACHAB.vcf';
