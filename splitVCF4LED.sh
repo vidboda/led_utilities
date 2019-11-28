@@ -65,6 +65,10 @@ case "${KEY}" in
 	DISEASE="$2"
 	shift
 	;;
+	-s|--suffix)
+	SUFFIX="$2"
+	shift
+	;;
 	-h|--help)
 	echo "${USAGE}"
 	exit 1
@@ -108,11 +112,11 @@ treat_samples() {
 	"$3" view -c1 -Ov -s "$4" -o "$9/$1/$4.vcf" "$2" 
 	if [ "$5" -a "$6" -a "$7" -a "$8" ];then
 		cp "sample.txt" "$9/$1/$4.txt"
-		sed -i.bak -e "s/patient_id:.+/patiend_id:${4}/" \
-			-e "s/family_id:.+/family_id:${5}/" \
-			-e "s/disease_name:.+/disease_name:${8}/" \
-			-e "s/team_name:.+/team_name:${6}/" \
-			-e "s/experiment_type:.+/experiment_type:${7}/" "$9/$1/$4.txt"
+		sed -i.bak -e "s/patient_id:.+/patiend_id:${SAMPLE_SIMPLE}/" \
+			-e "s/family_id:.+/family_id:${FAMILY}/" \
+			-e "s/disease_name:.+/disease_name:${DISEASE}/" \
+			-e "s/team_name:.+/team_name:${TEAM}/" \
+			-e "s/experiment_type:.+/experiment_type:${EXPERIMENT}/" "$9/$1/$4.txt"
 		rm "$9/$1/$4.txt.bak"
 	fi
 }
@@ -134,7 +138,12 @@ if [ -f "${VCF}" ];then
 		#SAMPLES=$(${BCFTOOLS} query -l ${VCF} | cut -f 1- | awk '{print}')
 		mkdir "${DIRNAME}/${FILENAME}"
 		for SAMPLE in `"${BCFTOOLS}" query -l "${VCF}"`; do
-			treat_samples "${FILENAME}" "${VCF}" "${BCFTOOLS}" "${SAMPLE}" "${FAMILY}" "${EXPERIMENT}" "${TEAM}" "${DISEASE}" "${DIRNAME}"
+			if [[ "${SAMPLE}" =~ '^(.+)${SUFFIX}$' ]];then
+				SAMPLE_SIMPLE = "${BASH_REMATCH[0]}"
+			else
+				SAMPLE_SIMPLE = "${SAMPLE}"
+			fi
+			treat_samples "${FILENAME}" "${VCF}" "${BCFTOOLS}" "${SAMPLE_SIMPLE}"
 			((SAMPLE_COUNT++))
 		done
 		info "${SAMPLE_COUNT} samples processed"
