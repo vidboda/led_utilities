@@ -1,14 +1,28 @@
 #! /usr/bin/perl -w
 
 use DBI;
+use Getopt::Std;
+
+$Getopt::Std::STANDARD_HELP_VERSION = 1;
+
 ##########################################################################################################
 ##	Script to export vcf files from lgm_ex								##
 ##	david baux 02/2019										##
 ##	david.baux@inserm.fr										##
 ##########################################################################################################
+
+my (%opts, $login, $passwd);
+getopts('l:p:', \%opts);
+
+if ((not exists $opts{'l'}) || (not exists $opts{'p'})) {
+	&HELP_MESSAGE();
+	exit
+}
+if ($opts{'l'} =~ /^(.+)$/o) {$login = $1} 
+if ($opts{'p'} =~ /^(.+)$/o) {$passwd = $1}
 my $dbh = DBI->connect(    "DBI:Pg:database=lgm_ex;host=localhost;",
-                        'lgm',
-                        'genetique1',
+                        $login,
+                        $passwd,
                         {'RaiseError' => 1}
                 ) or die $DBI::errstr;
 
@@ -34,12 +48,13 @@ foreach my $key (sort keys(%{$hash})) {
 	my ($chr, $pos, $ref, $alt, $id) = split(/_/, $key);
 	if (! $hash->{$key}->{'heterozygous'}) {$hash->{$key}->{'heterozygous'} = 0}
 	if (! $hash->{$key}->{'homozygous'}) {$hash->{$key}->{'homozygous'} = 0}
+	if (! $hash->{$key}->{'hemizygous'}) {$hash->{$key}->{'hemizygous'} = 0}
 	#print "$chr, $pos, $ref, $alt, $id, $hash->{$key}->{'heterozygous'}, $hash->{$key}\n";
 	#$content .= "chr$chr\t$pos\t.\t$ref\t$alt\t.\t.\t\=\"HET=$hash->{$key}->{'heterozygous'};HOM=$hash->{$key}->{'homozygous'};LED_URL=\"&HYPERLINK(\"https://194.167.35.158/perl/led/variant.pl?var=$id\")\n";
-	$content .= "chr$chr\t$pos\t.\t$ref\t$alt\t.\t.\tHET=$hash->{$key}->{'heterozygous'};HOM=$hash->{$key}->{'homozygous'};LED_URL=https://pp-gb-gen.iurc.montp.inserm.fr/perl/led/variant.pl?var=$id\n";
+	$content .= "chr$chr\t$pos\t.\t$ref\t$alt\t.\t.\tHET=$hash->{$key}->{'heterozygous'};HOM=$hash->{$key}->{'homozygous'};HEM=$hash->{$key}->{'hemizygous'};LED_URL=https://pp-gb-gen.iurc.montp.inserm.fr/perl/led/variant.pl?var=$id\n";
 }
 
-open F, '>LED4ACHAB.vcf';
+open F, ">LED4ACHAB_$date.vcf";
 print F $content;
 close F;
 #`bcftools sort -O v -o LED4ACHAB_$date.vcf LED4ACHAB.vcf`;
@@ -48,3 +63,14 @@ exit;
 
 
 
+sub HELP_MESSAGE {
+	print "\nUsage: ./LED2vcf.pl -l login -p password \nSupports --help or --version\n\n
+### This script creates a vcf files from the led database
+### -l database login
+### -p database passwd
+### contact: david.baux\@inserm.fr\n\n"
+}
+
+sub VERSION_MESSAGE {
+	print "\nVersion 0.1 18/02/2019\n"
+}
