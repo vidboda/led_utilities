@@ -114,8 +114,10 @@ while (<F>) {
 			#we need status and doc
 			my $status = 'heterozygous';
 			if (($chr eq 'Y') || ($chr eq 'X' && $patient->{'gender'} eq 'm')) {$status = 'hemizygous'}
+			if ($chr eq 'Y' && $patient->{'gender'} eq 'f') {next}
+			
 			#print $line[0];exit;
-			if ($line[0] =~ /AF=1\.00;/o) {$status = 'homozygous'}
+			elsif ($line[0] =~ /AF=1\.00;/o) {$status = 'homozygous'}
 			my $doc;
 			if ($line[0] =~ /DP=(\d+);/o) {$doc = $1}
 			elsif ($line[0] =~ /TC=(\d+);/o) {$doc = $1}
