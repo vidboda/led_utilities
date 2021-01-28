@@ -14,7 +14,7 @@ $Getopt::Std::STANDARD_HELP_VERSION = 1;
 
 
 my (%opts, $pat_file, $vcf, $login, $passwd);
-getopts('i:s:c:l:p', \%opts);
+getopts('i:s:c:l:p:', \%opts);
 
 if ((not exists $opts{'i'}) || ($opts{'i'} !~ /\.vcf/o) || (not exists $opts{'s'}) || ($opts{'s'} !~ /\.txt/o || (not exists $opts{'l'}) || (not exists $opts{'p'}))) {
 	&HELP_MESSAGE();
@@ -35,8 +35,7 @@ if ($opts{'c'}) {
 	if ($warning eq 't') {exit}
 }
 if ($opts{'l'} =~ /^(.+)$/o) {$login = $1} 
-if ($opts{'s'} =~ /^(.+)$/o) {$passwd = $1}
-
+if ($opts{'p'} =~ /^(.+)$/o) {$passwd = $1}
 
 my $dbh = DBI->connect(    "DBI:Pg:database=lgm_ex;host=localhost;",
                         $login,
@@ -91,6 +90,7 @@ while (<F>) {
 	$i++;
 	if (/^#/o) {$h++}
 	if (/^##reference=.+(hg\d{2})/o) {$genome = $1}
+	elsif (/^##.+\/(hg\d{2})\.fa/o) {$genome = $1}
 	elsif ((/^#CHROM/o) && (!$genome)) {print "\nFATAL: No reference genome found\n";exit 1;}
 	elsif (/^chr/o || /^[\dXYM]{1,2}\s+/o) {		
 		my @line = split(/\t/, $_);

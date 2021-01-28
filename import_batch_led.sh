@@ -91,14 +91,13 @@ case "${KEY}" in
 esac
 shift
 done
-
 ########	add / to INPUT_PATH if needed
 if [[ "${DIR}" =~ .+[^\/]$ ]];then
 	DIR="${DIR}/"
 fi
 
 ######## check mandatory arguments
-if [ ! "${DIR}" or ! "${LOGIN}" or ! "${PASSWORD}" ];then
+if [ ! "${DIR}" ] || [ ! "${LOGIN}" ] || [ ! "${PASSWORD}" ];then
 	echo "${USAGE}"
 	echo "Error Message : Missing argument"
 	echo ""
@@ -120,7 +119,8 @@ do
             if [ "$?" -eq 0 ];then
                 ${DOS2UNIX} ${DIR}${VCF}
                 if [ "$?" -eq 0 ];then
-                    ./"${IMPORT_SCRIPT}" -p "${DIR}${FILE}" -i "${DIR}${VCF}" -l "${LOGIN}" -pa "${PASSWORD}" -c
+		    echo "[DEBUG]: ./${IMPORT_SCRIPT} -s ${DIR}${FILE} -i ${DIR}${VCF} -l ${LOGIN} -p ${PASSWORD} -c"
+                    ./"${IMPORT_SCRIPT}" -s "${DIR}${FILE}" -i "${DIR}${VCF}" -l "${LOGIN}" -p "${PASSWORD}" -c
                     if [ "$?" -eq 0 ];then
                         echo "${BASH_REMATCH[1]} done"
                     else
