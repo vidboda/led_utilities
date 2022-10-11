@@ -52,7 +52,7 @@ foreach my $key (sort keys(%{$hash})) {
 	if (! $hash->{$key}->{'hemizygous'}) {$hash->{$key}->{'hemizygous'} = 0}
 	#print "$chr, $pos, $ref, $alt, $id, $hash->{$key}->{'heterozygous'}, $hash->{$key}\n";
 	#$content .= "chr$chr\t$pos\t.\t$ref\t$alt\t.\t.\t\=\"HET=$hash->{$key}->{'heterozygous'};HOM=$hash->{$key}->{'homozygous'};LED_URL=\"&HYPERLINK(\"https://194.167.35.158/perl/led/variant.pl?var=$id\")\n";
-	$content .= "chr$chr\t$pos\t.\t$ref\t$alt\t.\t.\tHET=$hash->{$key}->{'heterozygous'};HOM=$hash->{$key}->{'homozygous'};HEM=$hash->{$key}->{'hemizygous'};MAX=".max($hash->{$key}->{'heterozygous'}, $hash->{$key}->{'homozygous'}, $hash->{$key}->{'hemizygous'})."LED_URL=https://ushvam.iurc.montp.inserm.fr/perl/led/variant.pl?var=$id\n";
+	$content .= "chr$chr\t$pos\t.\t$ref\t$alt\t.\t.\tHET=$hash->{$key}->{'heterozygous'};HOM=$hash->{$key}->{'homozygous'};HEM=$hash->{$key}->{'hemizygous'};MAX=".max($hash->{$key}->{'heterozygous'}, $hash->{$key}->{'homozygous'}, $hash->{$key}->{'hemizygous'}).";LED_URL=https://ushvam.iurc.montp.inserm.fr/perl/led/variant.pl?var=$id\n";
 }
 
 open F, ">LED4ACHAB_$date.vcf";
