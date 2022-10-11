@@ -37,7 +37,7 @@ if ($opts{'c'}) {
 if ($opts{'l'} =~ /^(.+)$/o) {$login = $1} 
 if ($opts{'p'} =~ /^(.+)$/o) {$passwd = $1}
 
-my $dbh = DBI->connect(    "DBI:Pg:database=lgm_ex;host=localhost;",
+my $dbh = DBI->connect(    "DBI:Pg:database=lgm_ex;host=/var/run/postgresql;",
                         $login,
                         $passwd,
                         {'RaiseError' => 1}
