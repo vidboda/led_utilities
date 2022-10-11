@@ -45,7 +45,7 @@ if you have 1558.txt and 1558.final.vcf use -p '.final'
 
 "
 IMPORT_SCRIPT=import_vcf.pl
-DOS2UNIX=/usr/local/bin/dos2unix
+DOS2UNIX=/usr/bin/dos2unix
 
 
 ##############		If no options are given, print help message	#################################

@@ -20,7 +20,7 @@ if ((not exists $opts{'i'}) || ($opts{'i'} !~ /\.vcf/o) || (not exists $opts{'s'
 	&HELP_MESSAGE();
 	exit
 }
-if ($opts{'i'} =~ /(.+\.vcf)$/o) {$vcf = $1} 
+if ($opts{'i'} =~ /(.+\.vcf)$/o) {$vcf = $1}
 if ($opts{'s'} =~ /(.+\.txt)$/o) {$pat_file = $1}
 if ($opts{'c'}) {
 	open(F, $vcf) or die $!;
@@ -30,14 +30,14 @@ if ($opts{'c'}) {
 		$i++;
 		#print "$i\n";
 		if (/^#/o) {next}
-		elsif (/^[^c]/o) {print "\nCheck line $i in $vcf\nAborting $pat_file\n";$warning = 't';}	
+		elsif (/^[^c]/o) {print "\nCheck line $i in $vcf\nAborting $pat_file\n";$warning = 't';}
 	}
 	if ($warning eq 't') {exit}
 }
-if ($opts{'l'} =~ /^(.+)$/o) {$login = $1} 
+if ($opts{'l'} =~ /^(.+)$/o) {$login = $1}
 if ($opts{'p'} =~ /^(.+)$/o) {$passwd = $1}
 
-my $dbh = DBI->connect(    "DBI:Pg:database=lgm_ex;host=localhost;",
+my $dbh = DBI->connect(    "DBI:Pg:database=lgm_ex;host=/var/run/postgresql;",
                         $login,
                         $passwd,
                         {'RaiseError' => 1}
@@ -92,12 +92,12 @@ while (<F>) {
 	if (/^##reference=.+(hg\d{2})/o) {$genome = $1}
 	elsif (/^##.+\/(hg\d{2})\.fa/o) {$genome = $1}
 	elsif ((/^#CHROM/o) && (!$genome)) {print "\nFATAL: No reference genome found\n";exit 1;}
-	elsif (/^chr/o || /^[\dXYM]{1,2}\s+/o) {		
+	elsif (/^chr/o || /^[\dXYM]{1,2}\s+/o) {
 		my @line = split(/\t/, $_);
 		if ($line[9] !~ /^0\/0:/o) {
 			my ($chr,$pos,$rs,$ref,$alt,$qual,$filter) = (shift(@line),shift(@line),shift(@line),shift(@line),shift(@line),shift(@line),shift(@line));
 			#some cleaning
-			if ($chr =~ /chr([\dXYM]{1,2})/o) {$chr = $1}		
+			if ($chr =~ /chr([\dXYM]{1,2})/o) {$chr = $1}
 			if ($rs eq '.') {$rs = 'NULL'}
 			elsif ($rs =~ /rs(\d+)/o) {$rs = "'$1'"}
 			#variant already known?
@@ -115,12 +115,20 @@ while (<F>) {
 			my $status = 'heterozygous';
 			if (($chr eq 'Y') || ($chr eq 'X' && $patient->{'gender'} eq 'm')) {$status = 'hemizygous'}
 			if ($chr eq 'Y' && $patient->{'gender'} eq 'f') {next}
-			
+
 			#print $line[0];exit;
 			elsif ($line[0] =~ /AF=1\.00;/o) {$status = 'homozygous'}
-			my $doc;
+			my $doc = 0;
 			if ($line[0] =~ /DP=(\d+);/o) {$doc = $1}
 			elsif ($line[0] =~ /TC=(\d+);/o) {$doc = $1}
+			if ($qual eq '.') {
+				if ($line[0] =~ /VCQUAL=(\d+\.?\d?)/o) {$qual = $1}
+				else {$qual = 0}
+			}
+			if ($doc eq '') {
+				my @info = split(/:/, $line[1]);
+				if ($info[2] =~ /^(\d+)$/o) {$doc = $1}
+			}
 			$sql = "INSERT INTO Variant2patient (variant_id,patient_id,status_type,filter,qual,doc) VALUES ('$res->{'id'}','$res_patient->{'id'}','$status','$filter','$qual','$doc')";
 			$dbh->do($sql);
 			$j++;
@@ -129,7 +137,7 @@ while (<F>) {
 		}
 		#else {print $line[9]}
 	}
-	
+
 }
 print "\n".($i-$h)." lines in VCF $vcf and $j variants recorded\n";
 
