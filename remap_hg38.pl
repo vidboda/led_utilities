@@ -41,7 +41,7 @@ while (my $result = $sth->fetchrow_hashref()) {
 	my $update = "UPDATE variant SET pos_hg38 = '$hg38pos' where chr = '$chr' AND pos_hg19 = '$pos_hg19';";
 	$dbh->do($update);
 	$i++;
-	if ($i % 100 == 0) (print "$update - #$i\n")
+	if ($i % 100 == 0) {print "$update - #$i\n"}
 }
 print "$res\n";
 
