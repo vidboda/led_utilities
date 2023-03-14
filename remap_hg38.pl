@@ -40,8 +40,8 @@ while (my $result = $sth->fetchrow_hashref()) {
 	if ($hg38pos eq 'f') {print "No mapping for chr$chr:$pos_hg19\n";next}
 	my $update = "UPDATE variant SET pos_hg38 = '$hg38pos' where chr = '$chr' AND pos_hg19 = '$pos_hg19';";
 	$dbh->do($update);
-	print "$update - #$i\n";
 	$i++;
+	if ($i % 100 == 0) (print "$update - #$i\n")
 }
 print "$res\n";
 
