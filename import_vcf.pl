@@ -1,4 +1,4 @@
-#! /usr/bin/perl -wT
+#! /usr/bin/perl -w
 
 use strict;
 use DBI;
@@ -74,11 +74,11 @@ my $date =  (1900+$year)."-$month-".$mday;
 
 
 my $sql = "INSERT INTO PATIENT (patient_id,family_id,gender,disease_name,team_name,visibility,creation,experiment_type) VALUES ('$patient->{'patient_id'}','$patient->{'family_id'}','$patient->{'gender'}','$patient->{'disease_name'}','$patient->{'team_name'}','$patient->{'visibility'}','$date','$patient->{'experiment_type'}');";
-#print $sql;exit;
+# print $sql;exit;
 $dbh->do($sql);
 my $query_patient = "SELECT id FROM Patient WHERE patient_id = '$patient->{'patient_id'}' AND family_id = '$patient->{'family_id'}' AND gender = '$patient->{'gender'}' AND disease_name = '$patient->{'disease_name'}' AND experiment_type = '$patient->{'experiment_type'}';";
 my $res_patient = $dbh->selectrow_hashref($query_patient);
-#print "$sql\n";
+# print "$sql\n";
 
 #########	get variant info from vcf			#########
 my $genome;
@@ -93,18 +93,25 @@ while (<F>) {
 	elsif (/^##.+\/(hg\d{2})\.fa/o) {$genome = $1}
 	elsif ((/^#CHROM/o) && (!$genome)) {print "\nFATAL: No reference genome found\n";exit 1;}
 	elsif (/^chr/o || /^[\dXYM]{1,2}\s+/o) {
+		my $genome_alt = $genome eq 'hg19' ? 'hg38'  : 'hg19';
 		my @line = split(/\t/, $_);
 		if ($line[9] !~ /^0\/0:/o) {
 			my ($chr,$pos,$rs,$ref,$alt,$qual,$filter) = (shift(@line),shift(@line),shift(@line),shift(@line),shift(@line),shift(@line),shift(@line));
-			#some cleaning
+			# some cleaning
 			if ($chr =~ /chr([\dXYM]{1,2})/o) {$chr = $1}
 			if ($rs eq '.') {$rs = 'NULL'}
 			elsif ($rs =~ /rs(\d+)/o) {$rs = "'$1'"}
-			#variant already known?
+			# variant already known?
 			my $query = "SELECT id FROM Variant WHERE chr = '$chr' AND pos_$genome = '$pos' AND reference = '$ref' AND alternative = '$alt';";
 			my $res = $dbh->selectrow_hashref($query);
 			if (!$res) {
-				#variant does not exists, should be created
+				# variant does not exists, should be created
+				# liftover 
+				my $chain_file = $genome eq 'hg19' ? 'hg19ToHg38.over.chain.gz' : 'hg38ToHg19.over.chain.gz';
+				my $alt_genome_pos = liftover($pos, $chr, $chain_file);
+				if ($alt_genome_pos ne 'f') {
+					$sql = "INSERT INTO Variant (chr,pos_$genome,pos_$genome_alt,reference,alternative,dbsnp_rs,creation) VALUES ('$chr','$pos','$alt_genome_pos','$ref','$alt',$rs,'$date');";
+				}
 				$sql = "INSERT INTO Variant (chr,pos_$genome,reference,alternative,dbsnp_rs,creation) VALUES ('$chr','$pos','$ref','$alt',$rs,'$date');";
 				$dbh->do($sql);
 				#print "$sql\n";
@@ -153,5 +160,18 @@ sub HELP_MESSAGE {
 }
 
 sub VERSION_MESSAGE {
-	print "\nVersion 0.1 18/04/2016\n"
+	print "\nVersion 0.2 23/03/2023\n"
+}
+
+sub liftover {
+	my ($pos, $chr, $chain) = @_;
+	#liftover.py is 0-based
+	$pos = $pos-1;
+	if ($chr =~ /chr([\dXYM]{1,2})/o) {$chr = $1}
+	my ($chr_tmp2, $s) = split(/,/, `/usr/bin/python2 liftover.py $chain "chr$chr" $pos`);
+	$s =~ s/\)//g;
+	$s =~ s/ //g;
+	$s =~ s/'//g;
+	if ($s =~ /^\d+$/o) {return $s+1}
+	else {return 'f'}
 }
