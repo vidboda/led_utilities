@@ -109,10 +109,15 @@ while (<F>) {
 				# liftover 
 				my $chain_file = $genome eq 'hg19' ? 'hg19ToHg38.over.chain.gz' : 'hg38ToHg19.over.chain.gz';
 				my $alt_genome_pos = liftover($pos, $chr, $chain_file);
+				# print "LIFTOVER_RESULTS: $alt_genome_pos\n";
 				if ($alt_genome_pos ne 'f') {
 					$sql = "INSERT INTO Variant (chr,pos_$genome,pos_$genome_alt,reference,alternative,dbsnp_rs,creation) VALUES ('$chr','$pos','$alt_genome_pos','$ref','$alt',$rs,'$date');";
 				}
-				$sql = "INSERT INTO Variant (chr,pos_$genome,reference,alternative,dbsnp_rs,creation) VALUES ('$chr','$pos','$ref','$alt',$rs,'$date');";
+				else {
+					$sql = "INSERT INTO Variant (chr,pos_$genome,reference,alternative,dbsnp_rs,creation) VALUES ('$chr','$pos','$ref','$alt',$rs,'$date');";
+				}
+				# print "SQL: $sql\n";
+				# exit 0;
 				$dbh->do($sql);
 				#print "$sql\n";
 			}
@@ -169,6 +174,7 @@ sub liftover {
 	$pos = $pos-1;
 	if ($chr =~ /chr([\dXYM]{1,2})/o) {$chr = $1}
 	my ($chr_tmp2, $s) = split(/,/, `/usr/bin/python2 liftover.py $chain "chr$chr" $pos`);
+	# print "LIFTOVER: /usr/bin/python2 liftover.py $chain chr$chr $pos\n";
 	$s =~ s/\)//g;
 	$s =~ s/ //g;
 	$s =~ s/'//g;
