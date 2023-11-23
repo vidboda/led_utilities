@@ -119,7 +119,7 @@ do
             if [ "$?" -eq 0 ];then
                 ${DOS2UNIX} ${DIR}${VCF}
                 if [ "$?" -eq 0 ];then
-		            echo "[DEBUG]: ./${IMPORT_SCRIPT} -s ${DIR}${FILE} -i ${DIR}${VCF} -l ${LOGIN} -p ${PASSWORD} -c"
+		            echo "[DEBUG]: ./${IMPORT_SCRIPT} -s ${DIR}${FILE} -i ${DIR}${VCF} -l ${LOGIN} -p "${PASSWORD}" -c"
                     ./"${IMPORT_SCRIPT}" -s "${DIR}${FILE}" -i "${DIR}${VCF}" -l "${LOGIN}" -p "${PASSWORD}" -c
                     if [ "$?" -eq 0 ];then
                         echo "${BASH_REMATCH[1]} done"

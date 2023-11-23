@@ -95,7 +95,7 @@ while (<F>) {
 	elsif (/^chr/o || /^[\dXYM]{1,2}\s+/o) {
 		my $genome_alt = $genome eq 'hg19' ? 'hg38'  : 'hg19';
 		my @line = split(/\t/, $_);
-		if ($line[9] !~ /^0\/0:/o) {
+		if ($line[9] !~ /^0\/0:/o && $line[9] !~ /^\.\/\.:/o) {
 			my ($chr,$pos,$rs,$ref,$alt,$qual,$filter) = (shift(@line),shift(@line),shift(@line),shift(@line),shift(@line),shift(@line),shift(@line));
 			# some cleaning
 			if ($chr =~ /chr([\dXYM]{1,2})/o) {$chr = $1}
@@ -127,12 +127,14 @@ while (<F>) {
 			my $status = 'heterozygous';
 			if (($chr eq 'Y') || ($chr eq 'X' && $patient->{'gender'} eq 'm')) {$status = 'hemizygous'}
 			if ($chr eq 'Y' && $patient->{'gender'} eq 'f') {next}
-
-			#print $line[0];exit;
 			elsif ($line[0] =~ /AF=1\.00;/o) {$status = 'homozygous'}
+			elsif ($line[2] =~ /^1\/1:\d/o) {$status = 'homozygous'}
 			my $doc = 0;
 			if ($line[0] =~ /DP=(\d+);/o) {$doc = $1}
 			elsif ($line[0] =~ /TC=(\d+);/o) {$doc = $1}
+			# for VCF extracted from multisample
+			if ($line[1] =~ /^GT:AD:DP:/o) {$line[2] =~ /^[01]\/[012]:[\d,]+:(\d+):/o;$doc = $1}
+
 			if ($qual eq '.') {
 				if ($line[0] =~ /VCQUAL=(\d+\.?\d?)/o) {$qual = $1}
 				else {$qual = 0}
@@ -144,7 +146,7 @@ while (<F>) {
 			$sql = "INSERT INTO Variant2patient (variant_id,patient_id,status_type,filter,qual,doc) VALUES ('$res->{'id'}','$res_patient->{'id'}','$status','$filter','$qual','$doc')";
 			$dbh->do($sql);
 			$j++;
-			#print "$sql\n";
+			# print "$sql\n";
 			#TODO:check if annotations are complete in Variant table
 		}
 		#else {print $line[9]}
